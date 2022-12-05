@@ -6,7 +6,7 @@
 
 function format_time {
   local h=$(( $1 / 3600 ))
-  local m=$(( ($1 / 60) %60 ))
+  local m=$(( ($1 / 60) % 60 ))
   local s=$(( $1 % 60 ))
 
   printf "%02d:%02d:%06.3f" $h $m $s
