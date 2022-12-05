@@ -51,7 +51,7 @@ function create_metadata_file_with_chapters {
   }
 }
 
-function concatenate_cunks {
+function concatenate_chunks {
   ffmpeg -y \
          -v quiet \
          -f concat \
@@ -82,7 +82,7 @@ function main {
 
   convert_chunks_and_add_delay_to_them
   create_metadata_file_with_chapters
-  concatenate_cunks
+  concatenate_chunks
   add_metadata
 
   rm -rf tmp
