@@ -63,16 +63,13 @@ function concatenate_cunks {
 }
 
 function add_metadata {
-  local -a cmd=(ffmpeg -v quiet -i tmp/raw_output.opus)
+  local -a options
 
-  cat tmp/metadata.txt | while read line
-  do
-    cmd+=(-metadata $line)
-  done
+  options+=(-v quiet -i tmp/raw_output.opus)
 
-  cmd+=(output.opus)
+  foreach line ($(cat tmp/metadata.txt)) { options+=(-metadata $line) }
 
-  $cmd[@]
+  ffmpeg $options[@] output.opus
 }
 
 #
