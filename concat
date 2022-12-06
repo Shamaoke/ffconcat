@@ -17,7 +17,9 @@ function format_time {
 #
 
 function convert_chunks_and_add_delay_to_them {
-  foreach f (assets/caps/16ed/*.webm) {
+  local -a files_list=($@)
+
+  foreach f ($files_list) {
     ffmpeg -y \
            -v quiet \
            -i $f \
@@ -77,17 +79,17 @@ function add_metadata {
 #
 
 function main {
+  local -a files_list=($@)
 
   mkdir tmp
 
-  convert_chunks_and_add_delay_to_them
+  convert_chunks_and_add_delay_to_them $files_list
   create_metadata_file_with_chapters
   concatenate_chunks
   add_metadata
 
   rm -rf tmp
-
 }
 
-main
+main $@
 
