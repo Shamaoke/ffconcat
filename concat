@@ -31,6 +31,7 @@ function convert_chunks_and_add_delay_to_them {
 }
 
 function create_metadata_file_with_chapters {
+  local chapter_title=$1
   local chapter_start=0.0
   local chapter_duration=0.0
   local chapter_counter=1
@@ -43,7 +44,7 @@ function create_metadata_file_with_chapters {
     chapter_duration=$(ffprobe -v quiet -i $f -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1)
 
     chapter_start_tag="CHAPTER$(printf "%03d" $chapter_counter)=$(format_time $chapter_start)"
-    chapter_name_tag="CHAPTER$(printf "%03d" $chapter_counter)NAME=$(printf "%d" $chapter_counter)"
+    chapter_name_tag="CHAPTER$(printf "%03d" $chapter_counter)NAME=$chapter_title $(printf "%d" $chapter_counter)"
 
     printf "%s\n%s\n" $chapter_start_tag $chapter_name_tag >> tmp/metadata.txt
 
@@ -65,13 +66,15 @@ function concatenate_chunks {
 }
 
 function add_metadata {
+  local output=$1
   local -a options
 
   options+=(-v quiet -i tmp/raw_output.opus)
 
+  IFS=$'\n'
   foreach line ($(cat tmp/metadata.txt)) { options+=(-metadata $line) }
 
-  ffmpeg $options[@] output.opus
+  ffmpeg $options[@] $output
 }
 
 #
@@ -79,14 +82,25 @@ function add_metadata {
 #
 
 function main {
-  local -a files_list=($@)
+  local -a args=($@)
+
+  local -A options
+  local -a input
+  local    title
+  local    output
+
+  options=(${args:0:-1})
+
+  input=(${(@f)${options[-i]:-${options[--input]:-undefined}}})
+  title=${options[-t]:-${options[--title]:-undefined}}
+  output=${args[-1]}
 
   mkdir tmp
 
-  convert_chunks_and_add_delay_to_them $files_list
-  create_metadata_file_with_chapters
+  convert_chunks_and_add_delay_to_them $input
+  create_metadata_file_with_chapters $title
   concatenate_chunks
-  add_metadata
+  add_metadata $output
 
   rm -rf tmp
 }
