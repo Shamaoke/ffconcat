@@ -95,6 +95,11 @@ function main {
   title=${options[options[(i)-t|--title] + 1]:-${${options[(r)--title=*]#--title=}:-undefined}}
   output=${args[-1]}
 
+  [[ $input =~ undefined ]] || \
+  [[ $title =~ undefined ]] && \
+    echo "Both input and title should be specified.\n Input: $input\n Title: $title" && \
+    bye
+
   mkdir tmp
 
   convert_chunks_and_add_delay_to_them $input
