@@ -17,7 +17,7 @@ function format_time {
 #
 
 function convert_chunks_and_add_delay_to_them {
-  local -a files_list=($@)
+  local -a files_list=(${(@f)@})
 
   foreach f ($files_list) {
     ffmpeg -y \
@@ -84,15 +84,15 @@ function add_metadata {
 function main {
   local -a args=($@)
 
-  local -A options
-  local -a input
+  local -a options
+  local    input
   local    title
   local    output
 
   options=(${args:0:-1})
 
-  input=(${(@f)${options[-i]:-${options[--input]:-undefined}}})
-  title=${options[-t]:-${options[--title]:-undefined}}
+  input=${options[options[(i)-i|--input] + 1]:-${${options[(r)--input=*]#--input=}:-undefined}}
+  title=${options[options[(i)-t|--title] + 1]:-${${options[(r)--title=*]#--title=}:-undefined}}
   output=${args[-1]}
 
   mkdir tmp
