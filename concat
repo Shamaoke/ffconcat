@@ -65,8 +65,7 @@ function add_metadata {
 
   options+=(-v quiet -i tmp/raw_output.opus)
 
-  IFS=$'\n'
-  foreach line ($(cat tmp/metadata.txt)) { options+=(-metadata $line) }
+  foreach line ("${(f)$(<tmp/metadata.txt)}") { options+=(-metadata $line) }
 
   ffmpeg $options[@] $output
 }
