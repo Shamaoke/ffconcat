@@ -4,13 +4,7 @@
 # ::: Utilities :::
 #
 
-function format_time {
-  local h=$(( $1 / 3600 ))
-  local m=$(( ($1 / 60) % 60 ))
-  local s=$(( $1 % 60 ))
-
-  printf "%02d:%02d:%06.3f" $h $m $s
-}
+function ftime; printf "%02d:%02d:%06.3f" $(( $1 / 3600 )) $(( ($1 / 60) % 60 )) $(( $1 % 60 ))
 
 #
 # ::: Library :::
@@ -43,7 +37,7 @@ function create_metadata_file_with_chapters {
   foreach f (tmp/*.opus) {
     chapter_duration=$(ffprobe -v quiet -i $f -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1)
 
-    chapter_start_tag="CHAPTER$(printf "%03d" $chapter_counter)=$(format_time $chapter_start)"
+    chapter_start_tag="CHAPTER$(printf "%03d" $chapter_counter)=$(ftime $chapter_start)"
     chapter_name_tag="CHAPTER$(printf "%03d" $chapter_counter)NAME=$chapter_title $(printf "%d" $chapter_counter)"
 
     printf "%s\n%s\n" $chapter_start_tag $chapter_name_tag >> tmp/metadata.txt
