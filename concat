@@ -17,7 +17,6 @@ function format_time {
 #
 
 function convert_chunks_and_add_delay_to_them {
-  local -a files_list=(${(@f)@})
   local -a files_list=($@)
 
   foreach f ($files_list) {
