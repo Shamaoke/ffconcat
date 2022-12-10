@@ -67,7 +67,7 @@ function add_metadata {
 
   foreach line ("${(f)$(<tmp/metadata.txt)}") { options+=(-metadata $line) }
 
-  ffmpeg $options[@] $output
+  ffmpeg ${(@)options} $output
 }
 
 #
