@@ -60,7 +60,7 @@ function concatenate_chunks {
           tmp/raw_output.opus
 }
 
-function add_metadata {
+function add_chapters {
   local output=$1
   local -a options
 
@@ -99,7 +99,7 @@ function main {
   convert_chunks_and_add_delay_to_them $input
   create_metadata_file_with_chapters $title
   concatenate_chunks
-  add_metadata $output
+  add_chapters $output
 
   rm -rf tmp
 }
