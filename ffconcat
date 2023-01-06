@@ -56,6 +56,7 @@ function concatenate_chunks {
          -i <(foreach f (tmp/*.opus) { printf "file '%s/%s'\n" $(pwd) $f }) \
          -af apad=pad_dur=1s \
          -acodec libopus \
+         -map_metadata -1 \
           tmp/raw_output.opus
 }
 
