@@ -71,6 +71,18 @@ function add_chapters {
   ffmpeg ${(@)options} $output
 }
 
+function add_general_metadata {
+  local output=$2
+  local -a args=(${(s/; /)1})
+  local -a options
+
+  options+=(--in-place)
+
+  foreach arg ($args) { options+=(--add $arg) }
+
+  opustags ${(@)options} $output
+}
+
 #
 # ::: Main :::
 #
@@ -81,17 +93,20 @@ function main {
   local -a options
   local -a input
   local    title
+  local    metadata
   local    output
 
   options=(${args:0:-1})
 
   input=(${~options[options[(i)-i|--input] + 1]:-${${options[(r)--input=*]#--input=}:-undefined}})
   title=${options[options[(i)-t|--title] + 1]:-${${options[(r)--title=*]#--title=}:-undefined}}
+  metadata=${options[options[(i)-m|--metadata] + 1]:-${${options[(r)--metadata=*]#--metadata=}:-undefined}}
   output=${args[-1]}
 
   [[ $input =~ undefined ]] || \
-  [[ $title =~ undefined ]] && \
-    echo "Both input and title should be specified.\n Input: $input\n Title: $title" && \
+  [[ $title =~ undefined ]] || \
+  [[ $metadata =~ undefined ]] && \
+    echo "Input, Title and Metadata should be specified.\n Input: $input\n Title: $title\n Metadata: $metadata" && \
     bye
 
   mkdir tmp
@@ -100,6 +115,7 @@ function main {
   create_metadata_file_with_chapters $title
   concatenate_chunks
   add_chapters $output
+  add_general_metadata $metadata $output
 
   rm -rf tmp
 }
