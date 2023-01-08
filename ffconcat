@@ -24,7 +24,7 @@ function convert_chunks_and_add_delay_to_them {
   }
 }
 
-function create_metadata_file_with_chapters {
+function create_metadata_file {
   local chapter_title=$1
   local chapter_start=0.0
   local chapter_duration=0.0
@@ -32,7 +32,13 @@ function create_metadata_file_with_chapters {
   local chapter_start_tag
   local chapter_name_tag
 
+  local -a metadata=(${(s/; /)2})
+
   touch tmp/metadata.txt
+
+  foreach tag ($metadata) {
+    printf "%s\n" $tag >> tmp/metadata.txt
+  }
 
   foreach f (tmp/*.opus) {
     chapter_duration=$(ffprobe -v quiet -i $f -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1)
@@ -57,28 +63,16 @@ function concatenate_chunks {
          -af apad=pad_dur=1s \
          -acodec libopus \
          -map_metadata -1 \
-          tmp/raw_output.opus
+          output.opus
 }
 
-function add_chapters {
+function add_metadata {
   local output=$1
-  local -a options
-
-  options+=(-v quiet -i tmp/raw_output.opus)
-
-  foreach line ("${(f)$(<tmp/metadata.txt)}") { options+=(-metadata $line) }
-
-  ffmpeg ${(@)options} $output
-}
-
-function add_general_metadata {
-  local output=$2
-  local -a args=(${(s/; /)1})
   local -a options
 
   options+=(--in-place)
 
-  foreach arg ($args) { options+=(--add $arg) }
+  foreach line ("${(f)$(<tmp/metadata.txt)}") { options+=(--add $line) }
 
   opustags ${(@)options} $output
 }
@@ -112,10 +106,9 @@ function main {
   mkdir tmp
 
   convert_chunks_and_add_delay_to_them $input
-  create_metadata_file_with_chapters $title
+  create_metadata_file $title $metadata
   concatenate_chunks
-  add_chapters $output
-  add_general_metadata $metadata $output
+  add_metadata $output
 
   rm -rf tmp
 }
