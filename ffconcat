@@ -70,7 +70,7 @@ function add_metadata {
   local output=$1
   local -a options
 
-  options+=(--delete encoder --in-place)
+  options+=(--delete encoder --delete language --in-place)
 
   foreach line ("${(f)$(<tmp/metadata.txt)}") { options+=(--add $line) }
 
